@@ -1,0 +1,30 @@
+name: Test and release
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install packaging tools
+        run: sudo apt-get update && sudo apt-get install -y zip
+      - name: Test and package
+        run: ./scripts/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codex-usage-plasmoid
+          path: dist/*.plasmoid
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.plasmoid --generate-notes --verify-tag

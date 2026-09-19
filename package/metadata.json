@@ -1,0 +1,20 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "thenailedone"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Shows remaining Codex five-hour and weekly usage in the Plasma panel.",
+        "Icon": "view-statistics",
+        "Id": "io.github.thenailedone.codexusage",
+        "License": "MIT",
+        "Name": "Codex Usage",
+        "Version": "1.1.0",
+        "Website": "https://github.com/thenailedone/codex-usage-plasmoid",
+        "BugReportUrl": "https://github.com/thenailedone/codex-usage-plasmoid/issues"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
