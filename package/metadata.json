@@ -6,12 +6,12 @@
             }
         ],
         "Category": "System Information",
-        "Description": "Shows remaining Codex five-hour and weekly usage in the Plasma panel.",
+        "Description": "Shows remaining Codex usage windows in the Plasma panel.",
         "Icon": "view-statistics",
         "Id": "io.github.thenailedone.codexusage",
         "License": "MIT",
         "Name": "Codex Usage",
-        "Version": "1.1.0",
+        "Version": "1.2.0",
         "Website": "https://github.com/thenailedone/codex-usage-plasmoid",
         "BugReportUrl": "https://github.com/thenailedone/codex-usage-plasmoid/issues"
     },

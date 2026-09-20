@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1827"/>
+      <stop offset="1" stop-color="#18395e"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3daee9"/>
+      <stop offset="1" stop-color="#69d0ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000" flood-opacity=".42"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <circle cx="1120" cy="80" r="250" fill="#3daee9" opacity=".08"/>
+  <circle cx="100" cy="650" r="300" fill="#8bd5ff" opacity=".05"/>
+
+  <g font-family="Noto Sans, DejaVu Sans, sans-serif">
+    <text x="86" y="105" fill="#fff" font-size="48" font-weight="700">Codex Usage</text>
+    <text x="88" y="147" fill="#b9d1e7" font-size="23">Adaptive usage windows, natively in your Plasma panel.</text>
+
+    <g filter="url(#shadow)">
+      <rect x="86" y="205" width="498" height="68" rx="18" fill="#20242a" stroke="#ffffff" stroke-opacity=".11"/>
+      <circle cx="125" cy="239" r="18" fill="#3daee9"/>
+      <path d="M116 240h18M125 231v18" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+      <text x="158" y="247" fill="#9fe4a7" font-size="25" font-weight="650">3h 72%</text>
+      <text x="272" y="247" fill="#718096" font-size="24">·</text>
+      <text x="300" y="247" fill="#9fe4a7" font-size="25" font-weight="650">2w 84%</text>
+      <text x="405" y="247" fill="#8996a5" font-size="22" font-weight="650">+1</text>
+      <text x="474" y="246" fill="#7f8b99" font-size="18">↻</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="650" y="178" width="530" height="470" rx="24" fill="#20242a" stroke="#ffffff" stroke-opacity=".12"/>
+      <text x="696" y="235" fill="#fff" font-size="31" font-weight="700">Codex Usage</text>
+      <circle cx="1121" cy="223" r="20" fill="#2c323a"/>
+      <text x="1112" y="231" fill="#c9d1d9" font-size="22">↻</text>
+
+      <text x="696" y="296" fill="#e7edf3" font-size="20" font-weight="600">3-hour window</text>
+      <text x="1090" y="296" fill="#9fe4a7" font-size="23" font-weight="700">72%</text>
+      <rect x="696" y="315" width="438" height="12" rx="6" fill="#343b45"/>
+      <rect x="696" y="315" width="315" height="12" rx="6" fill="url(#blue)"/>
+      <text x="696" y="355" fill="#95a3b2" font-size="16">Resets in 2 hours 14 minutes</text>
+
+      <text x="696" y="411" fill="#e7edf3" font-size="20" font-weight="600">2-week window</text>
+      <text x="1090" y="411" fill="#9fe4a7" font-size="23" font-weight="700">84%</text>
+      <rect x="696" y="430" width="438" height="12" rx="6" fill="#343b45"/>
+      <rect x="696" y="430" width="368" height="12" rx="6" fill="url(#blue)"/>
+      <text x="696" y="470" fill="#95a3b2" font-size="16">Resets Monday at 08:00</text>
+
+      <line x1="696" y1="504" x2="1134" y2="504" stroke="#fff" stroke-opacity=".12"/>
+      <text x="696" y="545" fill="#aeb9c5" font-size="17">Plan</text>
+      <text x="1087" y="545" fill="#fff" font-size="17" font-weight="600">Plus</text>
+      <text x="696" y="582" fill="#aeb9c5" font-size="17">Status</text>
+      <text x="1008" y="582" fill="#9fe4a7" font-size="17" font-weight="600">Usage available</text>
+      <text x="696" y="619" fill="#718096" font-size="14">Example values shown</text>
+    </g>
+
+    <g>
+      <circle cx="106" cy="348" r="7" fill="#3daee9"/>
+      <text x="132" y="356" fill="#e7edf3" font-size="22">Dynamic labels and multiple quota buckets</text>
+      <circle cx="106" cy="408" r="7" fill="#3daee9"/>
+      <text x="132" y="416" fill="#e7edf3" font-size="22">Automatic refresh and reset times</text>
+      <circle cx="106" cy="468" r="7" fill="#3daee9"/>
+      <text x="132" y="476" fill="#e7edf3" font-size="22">Uses your existing Codex ChatGPT sign-in</text>
+      <circle cx="106" cy="528" r="7" fill="#3daee9"/>
+      <text x="132" y="536" fill="#e7edf3" font-size="22">Never reads or stores access tokens</text>
+    </g>
+
+    <text x="88" y="658" fill="#8ca4bb" font-size="16">Unofficial open-source widget · KDE Plasma 6 · MIT License</text>
+  </g>
+</svg>

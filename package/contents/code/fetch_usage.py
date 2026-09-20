@@ -19,7 +19,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.0"
 CLIENT_INFO = {
     "name": "kde_codex_usage",
     "title": "Codex Usage for KDE Plasma",
@@ -39,11 +39,21 @@ def emit(payload: dict[str, Any]) -> None:
     print(json.dumps(payload, separators=(",", ":")), flush=True)
 
 
-def remaining(window: dict[str, Any] | None) -> dict[str, Any] | None:
+def remaining(
+    window: dict[str, Any] | None,
+    *,
+    limit_id: str = "",
+    limit_name: str = "",
+    slot: str = "",
+) -> dict[str, Any] | None:
     if not window:
         return None
     used = max(0, min(100, int(round(float(window.get("usedPercent", 0))))))
     return {
+        "id": f"{limit_id}:{slot}" if limit_id and slot else slot or limit_id,
+        "limitId": limit_id,
+        "limitName": limit_name,
+        "slot": slot,
         "usedPercent": used,
         "remainingPercent": 100 - used,
         "windowDurationMins": window.get("windowDurationMins"),
@@ -157,19 +167,36 @@ class AppServer:
 
 
 def normalise_limits(response: dict[str, Any]) -> dict[str, Any]:
-    limits = response.get("rateLimits") or {}
+    legacy_limits = response.get("rateLimits") or {}
+    mapped_limits = response.get("rateLimitsByLimitId") or {}
+    if isinstance(mapped_limits, dict) and mapped_limits:
+        buckets = [value for value in mapped_limits.values() if isinstance(value, dict)]
+    else:
+        buckets = [legacy_limits] if legacy_limits else []
+
+    windows: list[dict[str, Any]] = []
+    for bucket in buckets:
+        limit_id = str(bucket.get("limitId") or "")
+        limit_name = str(bucket.get("limitName") or "")
+        for slot in ("primary", "secondary"):
+            window = remaining(
+                bucket.get(slot),
+                limit_id=limit_id,
+                limit_name=limit_name,
+                slot=slot,
+            )
+            if window is not None:
+                windows.append(window)
+
+    limits = legacy_limits or (buckets[0] if buckets else {})
     credits = limits.get("credits") or {}
     reset_credits = response.get("rateLimitResetCredits") or {}
-    primary = remaining(limits.get("primary"))
-    secondary = remaining(limits.get("secondary"))
-    if primary is None or secondary is None:
-        raise BridgeError("Codex did not return both usage windows")
     return {
         "ok": True,
         "state": "ready",
+        "message": "" if windows else "Codex reported no active usage windows",
         "fetchedAt": int(time.time()),
-        "primary": primary,
-        "secondary": secondary,
+        "windows": windows,
         "planType": limits.get("planType"),
         "credits": {
             "hasCredits": bool(credits.get("hasCredits", False)),

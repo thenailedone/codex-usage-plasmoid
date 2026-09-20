@@ -1,15 +1,16 @@
 # Codex Usage for KDE Plasma 6
 
-An unofficial, native Plasma panel widget showing the remaining Codex usage in your rolling five-hour and weekly windows.
+An unofficial, native Plasma panel widget showing the remaining Codex usage in every window reported by Codex.
 
-The compact panel display reads `5h …% · W …%`. Hover or click it for reset times, plan, additional-credit balance, reset credits, status, and the last update time.
+The compact panel display derives labels such as `5h` and `1w` from Codex's reported window lengths. It shows up to two windows plus a `+N` indicator; hover or click for every reported window, reset times, plan, additional-credit balance, reset credits, status, and the last update time.
 
 This project is not affiliated with or endorsed by OpenAI or KDE.
 
 ## Features
 
 - Native Plasma 6 compact and expanded representations
-- Five-hour and weekly percentages visible directly on the panel
+- Dynamic labels generated from Codex's reported window durations
+- Handles one, two, or multiple quota buckets without assuming a fixed schedule
 - Five-minute automatic refresh plus a manual refresh action
 - ChatGPT sign-in through Codex's managed browser login
 - Reuses an existing Codex login without copying or exposing credentials
@@ -66,7 +67,7 @@ kpackagetool6 --type Plasma/Applet --remove io.github.thenailedone.codexusage
 
 ## Limitations
 
-The widget relies on Codex's app-server interface, which may evolve. A future Codex update could require a matching widget update. Browser cookies are never imported or inspected.
+The widget relies on Codex's app-server interface, which may evolve. Window durations and the number of quota buckets adapt automatically, but a future incompatible app-server change could still require a widget update. Browser cookies are never imported or inspected.
 
 ## License
 

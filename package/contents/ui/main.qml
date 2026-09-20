@@ -10,12 +10,7 @@ import org.kde.plasma.plasmoid
 PlasmoidItem {
     id: root
 
-    property int fiveHourRemaining: -1
-    property int weeklyRemaining: -1
-    property int fiveHourUsed: -1
-    property int weeklyUsed: -1
-    property double fiveHourReset: 0
-    property double weeklyReset: 0
+    property var usageWindows: []
     property double fetchedAt: 0
     property string planType: ""
     property string creditBalance: "0"
@@ -26,7 +21,8 @@ PlasmoidItem {
     property string errorMessage: ""
     property string activeOperation: ""
     property bool loading: false
-    property bool hasData: fiveHourRemaining >= 0 && weeklyRemaining >= 0
+    property bool hasData: usageWindows.length > 0
+    readonly property int compactWindowLimit: 2
 
     readonly property string scriptPath: decodeURIComponent(
         Qt.resolvedUrl("../code/fetch_usage.py").toString().replace("file://", ""))
@@ -74,6 +70,41 @@ PlasmoidItem {
         return Kirigami.Theme.positiveTextColor
     }
 
+    function durationShort(minutes) {
+        const value = Number(minutes)
+        if (!isFinite(value) || value <= 0)
+            return i18n("Window")
+        if (value % 10080 === 0)
+            return i18n("%1w", value / 10080)
+        if (value % 1440 === 0)
+            return i18n("%1d", value / 1440)
+        if (value % 60 === 0)
+            return i18n("%1h", value / 60)
+        return i18n("%1m", value)
+    }
+
+    function durationLong(minutes) {
+        const value = Number(minutes)
+        if (!isFinite(value) || value <= 0)
+            return i18n("Usage window")
+        if (value % 10080 === 0)
+            return i18n("%1-week window", value / 10080)
+        if (value % 1440 === 0)
+            return i18n("%1-day window", value / 1440)
+        if (value % 60 === 0)
+            return i18n("%1-hour window", value / 60)
+        return i18n("%1-minute window", value)
+    }
+
+    function windowTitle(window) {
+        const duration = durationLong(window.windowDurationMins)
+        return window.limitName ? i18n("%1 · %2", window.limitName, duration) : duration
+    }
+
+    function compactWindows() {
+        return usageWindows.slice(0, compactWindowLimit)
+    }
+
     function tooltipDetails() {
         if (errorMessage.length > 0)
             return i18n("Unable to update: %1", errorMessage)
@@ -82,11 +113,19 @@ PlasmoidItem {
                 return activeOperation === "login" ? i18n("Waiting for ChatGPT sign-in…") : i18n("Updating usage…")
             return stateMessage.length > 0 ? stateMessage : i18n("Usage is not available yet")
         }
-        return i18n("5 hours: %1 remaining (resets %2)\nWeekly: %3 remaining (resets %4)\nPlan: %5\nAdditional credits: %6\nReset credits: %7\nStatus: %8\nUpdated: %9",
-                    percentText(fiveHourRemaining), resetText(fiveHourReset),
-                    percentText(weeklyRemaining), resetText(weeklyReset),
-                    planText(), creditBalance, resetCredits, accountStatus,
-                    updatedText())
+        const lines = []
+        for (let index = 0; index < usageWindows.length; ++index) {
+            const window = usageWindows[index]
+            lines.push(i18n("%1: %2 remaining (resets %3)",
+                            windowTitle(window), percentText(window.remainingPercent),
+                            resetText(window.resetsAt || 0)))
+        }
+        lines.push(i18n("Plan: %1", planText()))
+        lines.push(i18n("Additional credits: %1", creditBalance))
+        lines.push(i18n("Reset credits: %1", resetCredits))
+        lines.push(i18n("Status: %1", accountStatus))
+        lines.push(i18n("Updated: %1", updatedText()))
+        return lines.join("\n")
     }
 
     function shellQuote(value) {
@@ -128,12 +167,7 @@ PlasmoidItem {
                 errorMessage = payload.message || i18n("Unknown error")
             return
         }
-        fiveHourRemaining = payload.primary.remainingPercent
-        weeklyRemaining = payload.secondary.remainingPercent
-        fiveHourUsed = payload.primary.usedPercent
-        weeklyUsed = payload.secondary.usedPercent
-        fiveHourReset = payload.primary.resetsAt || 0
-        weeklyReset = payload.secondary.resetsAt || 0
+        usageWindows = payload.windows || []
         fetchedAt = payload.fetchedAt || 0
         planType = payload.planType || ""
         creditBalance = payload.credits && payload.credits.unlimited
@@ -204,23 +238,24 @@ PlasmoidItem {
                     : Kirigami.Theme.textColor
             }
 
-            PlasmaComponents.Label {
-                visible: root.hasData
-                text: i18n("5h %1", root.percentText(root.fiveHourRemaining))
-                color: root.usageColor(root.fiveHourRemaining)
-                font.weight: Font.DemiBold
+            Repeater {
+                model: root.compactWindows()
+
+                PlasmaComponents.Label {
+                    required property var modelData
+                    required property int index
+                    text: (index > 0 ? "· " : "")
+                        + root.durationShort(modelData.windowDurationMins)
+                        + " " + root.percentText(modelData.remainingPercent)
+                    color: root.usageColor(modelData.remainingPercent)
+                    font.weight: Font.DemiBold
+                }
             }
 
             PlasmaComponents.Label {
-                visible: root.hasData
-                text: "·"
+                visible: root.usageWindows.length > root.compactWindowLimit
+                text: i18n("+%1", root.usageWindows.length - root.compactWindowLimit)
                 color: Kirigami.Theme.disabledTextColor
-            }
-
-            PlasmaComponents.Label {
-                visible: root.hasData
-                text: i18n("W %1", root.percentText(root.weeklyRemaining))
-                color: root.usageColor(root.weeklyRemaining)
                 font.weight: Font.DemiBold
             }
 
@@ -276,22 +311,17 @@ PlasmoidItem {
             }
         }
 
-        UsageSection {
-            visible: root.hasData
-            Layout.fillWidth: true
-            title: i18n("Five-hour window")
-            remaining: root.fiveHourRemaining
-            resetText: root.resetText(root.fiveHourReset)
-            accentColor: root.usageColor(root.fiveHourRemaining)
-        }
+        Repeater {
+            model: root.usageWindows
 
-        UsageSection {
-            visible: root.hasData
-            Layout.fillWidth: true
-            title: i18n("Weekly window")
-            remaining: root.weeklyRemaining
-            resetText: root.resetText(root.weeklyReset)
-            accentColor: root.usageColor(root.weeklyRemaining)
+            UsageSection {
+                required property var modelData
+                Layout.fillWidth: true
+                title: root.windowTitle(modelData)
+                remaining: modelData.remainingPercent
+                resetText: root.resetText(modelData.resetsAt || 0)
+                accentColor: root.usageColor(modelData.remainingPercent)
+            }
         }
 
         Kirigami.Separator {

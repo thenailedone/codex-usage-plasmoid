@@ -6,11 +6,11 @@ Codex Usage
 
 ## Summary
 
-See your remaining Codex five-hour and weekly usage directly in the Plasma panel.
+See your remaining Codex usage windows directly in the Plasma panel.
 
 ## Description
 
-Codex Usage is an unofficial Plasma 6 widget for people who use Codex through a ChatGPT account. The compact panel view shows the remaining percentage in the rolling five-hour and weekly windows. Hover or click for reset times, account plan, additional-credit information, status, and the last refresh time.
+Codex Usage is an unofficial Plasma 6 widget for people who use Codex through a ChatGPT account. The compact panel view adapts to the window durations and quota buckets reported by Codex instead of assuming a fixed schedule. It shows the first two remaining percentages plus an extra-window count when needed. Hover or click for every reported window, reset times, account plan, additional-credit information, status, and the last refresh time.
 
 It uses the locally installed Codex app-server and Codex-managed ChatGPT sign-in. The widget does not read, copy, or store access tokens.
 

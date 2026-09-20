@@ -24,9 +24,47 @@ class FetchUsageTests(unittest.TestCase):
             }
         }
         result = MODULE.normalise_limits(payload)
-        self.assertEqual(result["primary"]["remainingPercent"], 75)
-        self.assertEqual(result["secondary"]["remainingPercent"], 40)
+        self.assertEqual([window["remainingPercent"] for window in result["windows"]], [75, 40])
+        self.assertEqual(result["windows"][0]["windowDurationMins"], 300)
         self.assertEqual(result["credits"]["balance"], "12.50")
+
+    def test_multi_bucket_limits_are_flattened_without_legacy_duplicates(self):
+        payload = {
+            "rateLimits": {
+                "limitId": "legacy",
+                "primary": {"usedPercent": 99, "windowDurationMins": 60},
+            },
+            "rateLimitsByLimitId": {
+                "codex": {
+                    "limitId": "codex",
+                    "primary": {"usedPercent": 10, "windowDurationMins": 180},
+                    "secondary": {"usedPercent": 20, "windowDurationMins": 20160},
+                },
+                "special": {
+                    "limitId": "special",
+                    "limitName": "Special models",
+                    "primary": {"usedPercent": 30, "windowDurationMins": 1440},
+                },
+            },
+        }
+        result = MODULE.normalise_limits(payload)
+        self.assertEqual(len(result["windows"]), 3)
+        self.assertEqual(
+            [window["windowDurationMins"] for window in result["windows"]],
+            [180, 20160, 1440],
+        )
+        self.assertEqual(result["windows"][2]["limitName"], "Special models")
+
+    def test_single_or_no_window_is_valid(self):
+        one = MODULE.normalise_limits(
+            {"rateLimits": {"primary": {"usedPercent": 12, "windowDurationMins": 60}}}
+        )
+        self.assertEqual(len(one["windows"]), 1)
+        self.assertEqual(one["windows"][0]["remainingPercent"], 88)
+
+        none = MODULE.normalise_limits({})
+        self.assertEqual(none["windows"], [])
+        self.assertEqual(none["state"], "ready")
 
     def test_auth_url_validation(self):
         self.assertEqual(
